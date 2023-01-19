@@ -2,15 +2,13 @@ version: '3.2'
 services:
   web:
     build: ./nginx
-    container_name: magentoapp
+    container_name: web
     ports:
       - "80:80"
       - "433:433"
     links:
       - db
       - phpfpm
-    networks:
-      - internal
     volumes: &appvolumes
       - ~/.composer:/var/www/.composer:cached
       - ~/.ssh/id_rsa:/var/www/.ssh/id_rsa:cached
@@ -20,14 +18,19 @@ services:
       - ssldata:/etc/nginx/certs
   phpfpm:
     build: ./php
+    container_name: phpfpm
+    depends_on:
+      - db
+      - opensearch
+      - redis
     links:
       - db
-    networks:
-      - internal
+      - opensearch
+      - redis
     volumes: *appvolumes
   db:
     image: mariadb:10.4
-    container_name: mysql
+    container_name: db
     ports:
       - "3306:3306"
     env_file: env/db.env
@@ -51,9 +54,6 @@ services:
       - "discovery.type=single-node"
       - "cluster.routing.allocation.disk.threshold_enabled=false"
       - "index.blocks.read_only_allow_delete"    
-networks:
-  internal:
-    driver: bridge
 volumes:
   appdata:
   dbdata:

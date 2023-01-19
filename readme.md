@@ -1,5 +1,5 @@
 ### Docker image to install Magento 2.4.4 and nginx
-### Not working image
+~~### Not working image~~
 It's my first trial to use docker 
 
 ### Succeeded 
@@ -12,8 +12,13 @@ It's my first trial to use docker
 - run magento2 installation on magento2.local
 - added redis and opensearch service
 
-### Failed
-- tried many ways to connect db service to web service to install magento but with no luck
+~~### Failed~~
+~~- tried many ways to connect db service to web service to install magento but with no luck~~
 
 
 ### I'm still trying to make it work and I will
+
+
+### Update
+
+It's working now
