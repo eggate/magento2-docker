@@ -1,0 +1,61 @@
+version: '3.2'
+services:
+  web:
+    build: ./nginx
+    container_name: magentoapp
+    ports:
+      - "80:80"
+      - "433:433"
+    links:
+      - db
+      - phpfpm
+    networks:
+      - internal
+    volumes: &appvolumes
+      - ~/.composer:/var/www/.composer:cached
+      - ~/.ssh/id_rsa:/var/www/.ssh/id_rsa:cached
+      - ~/.ssh/known_hosts:/var/www/.ssh/known_hosts:cached
+      - appdata:/var/www/html
+      - sockdata:/sock
+      - ssldata:/etc/nginx/certs
+  phpfpm:
+    build: ./php
+    links:
+      - db
+    networks:
+      - internal
+    volumes: *appvolumes
+  db:
+    image: mariadb:10.4
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    env_file: env/db.env
+    volumes:
+      - dbdata:/var/lib/mysql
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    ports:
+      - "8580:80"
+  redis:
+    image: redis:6.2-alpine
+    ports:
+      - "6379:6379"
+  opensearch:
+    image: opensearchproject/opensearch:1.2.4
+    ports:
+      - "9200:9200"
+    env_file: env/opensearch.env
+    environment:
+      - "discovery.type=single-node"
+      - "cluster.routing.allocation.disk.threshold_enabled=false"
+      - "index.blocks.read_only_allow_delete"    
+networks:
+  internal:
+    driver: bridge
+volumes:
+  appdata:
+  dbdata:
+  sockdata:
+  ssldata:
